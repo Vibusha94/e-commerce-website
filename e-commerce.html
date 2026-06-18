@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Shop · Admin & User</title>
+  <!-- Bootstrap 5 & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    body { background: #f4f6f9; }
+    .card-shadow { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08); border: none; }
+    .dashboard-header { border-bottom: 2px solid #e9ecef; padding-bottom: 0.75rem; margin-bottom: 1.5rem; }
+    .product-img-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #dee2e6; }
+    .badge-status { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+    .login-card { max-width: 440px; margin: 2rem auto; }
+    .hidden { display: none; }
+    .pointer { cursor: pointer; }
+    .auth-toggle { font-size: 0.9rem; }
+    .product-id-badge { 
+      position: absolute; 
+      top: 10px; 
+      right: 10px; 
+      background: rgba(0,0,0,0.7); 
+      color: white; 
+      padding: 4px 10px; 
+      border-radius: 20px; 
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .product-card-wrapper { position: relative; }
+    .track-status-card {
+      border-left: 4px solid #0d6efd;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .status-timeline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+    .status-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #e9ecef;
+      color: #6c757d;
+      font-size: 0.85rem;
+    }
+    .status-step.active {
+      background: #0d6efd;
+      color: white;
+    }
+    .status-step.completed {
+      background: #198754;
+      color: white;
+    }
+    .status-arrow {
+      color: #6c757d;
+      font-size: 1.2rem;
+    }
+    .track-result-box {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-4" id="appContainer">
+
+  <!-- ============ LOGIN / REGISTER / FORGOT PASSWORD ============ -->
+  <div id="loginPage">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card card-shadow login-card">
+          <div class="card-body p-4">
+            <h3 class="text-center mb-3"><i class="bi bi-shop"></i> E-Shop</h3>
+            
+            <!-- Login Tabs: User / Admin -->
+            <ul class="nav nav-tabs nav-fill mb-3" id="loginTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="user-login-tab" data-bs-toggle="tab" data-bs-target="#userLogin" type="button" role="tab">👤 User</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-login-tab" data-bs-toggle="tab" data-bs-target="#adminLogin" type="button" role="tab">🛠️ Admin</button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <!-- ===== USER LOGIN ===== -->
+              <div class="tab-pane fade show active" id="userLogin" role="tabpanel">
+                <form id="userLoginForm">
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="userLoginEmail" placeholder="user@example.com" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="userLoginPassword" placeholder="••••••" required>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="#" class="text-decoration-none small" id="userForgotLink">Forgot password?</a>
+                    <a href="#" class="text-decoration-none small" id="userCreateLink">Create account</a>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100">Login as User</button>
+                </form>
+              </div>
+
+              <!-- ===== ADMIN LOGIN ===== -->
+              <div class="tab-pane fade" id="adminLogin" role="tabpanel">
+                <form id="adminLoginForm">
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="adminLoginEmail" placeholder="admin@example.com" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="adminLoginPassword" placeholder="••••••" required>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="#" class="text-decoration-none small" id="adminForgotLink">Forgot password?</a>
+                    <a href="#" class="text-decoration-none small" id="adminCreateLink">Create account</a>
+                  </div>
+                  <button type="submit" class="btn btn-dark w-100">Login as Admin</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- ===== FORGOT PASSWORD ===== -->
+            <div id="forgotPasswordPanel" class="mt-3 hidden">
+              <hr>
+              <h6 class="text-center"><i class="bi bi-key"></i> Reset password</h6>
+              <form id="forgotPasswordForm">
+                <div class="mb-2">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" id="forgotEmail" placeholder="Enter your email" required>
+                </div>
+                <button type="submit" class="btn btn-warning btn-sm w-100">Send reset link</button>
+                <div class="text-center mt-2">
+                  <a href="#" id="backToLoginFromForgot" class="text-decoration-none small">← Back to login</a>
+                </div>
+              </form>
+            </div>
+
+            <!-- ===== CREATE ACCOUNT ===== -->
+            <div id="createAccountPanel" class="mt-3 hidden">
+              <hr>
+              <h6 class="text-center"><i class="bi bi-person-plus"></i> Create account</h6>
+              <form id="createAccountForm">
+                <div class="mb-2">
+                  <label class="form-label">Full name</label>
+                  <input type="text" class="form-control" id="createName" placeholder="John Doe" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" id="createEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Password</label>
+                  <input type="password" class="form-control" id="createPassword" placeholder="••••••" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Role</label>
+                  <select class="form-select" id="createRole">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-success btn-sm w-100">Create account</button>
+                <div class="text-center mt-2">
+                  <a href="#" id="backToLoginFromCreate" class="text-decoration-none small">← Back to login</a>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADMIN DASHBOARD ============ -->
+  <div id="adminDashboard" class="hidden">
+    <div class="d-flex justify-content-between align-items-center dashboard-header">
+      <h2><i class="bi bi-shield-lock"></i> Admin Dashboard</h2>
+      <button class="btn btn-outline-secondary btn-sm" id="adminLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </div>
+
+    <div class="card card-shadow mb-4">
+      <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-plus-circle"></i> Add Product</h5>
+        <form id="addProductForm" class="row g-3">
+          <div class="col-md-3">
+            <input type="text" class="form-control" id="prodName" placeholder="Product name" required>
+          </div>
+          <div class="col-md-2">
+            <input type="number" class="form-control" id="prodPrice" placeholder="Price $" step="0.01" required>
+          </div>
+          <div class="col-md-2">
+            <input type="number" class="form-control" id="prodStock" placeholder="Stock" required>
+          </div>
+          <div class="col-md-3">
+            <input type="text" class="form-control" id="prodImage" placeholder="Image URL" value="https://via.placeholder.com/80">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100"><i class="bi bi-save"></i> Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card card-shadow">
+      <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-box-seam"></i> Product Inventory</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle" id="adminProductTable">
+            <thead class="table-light">
+              <tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adminProductList"></tbody>
+          </table>
+        </div>
+        <div class="mt-3 p-3 bg-light rounded">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Ship product (ID)</label>
+              <input type="number" class="form-control form-control-sm" id="shipProductId" placeholder="Product ID">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary btn-sm w-100" id="shipProductBtn"><i class="bi bi-truck"></i> Ship</button>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Deliver product (ID)</label>
+              <input type="number" class="form-control form-control-sm" id="deliverProductId" placeholder="Product ID">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-success btn-sm w-100" id="deliverProductBtn"><i class="bi bi-check2-circle"></i> Deliver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ USER DASHBOARD ============ -->
+  <div id="userDashboard" class="hidden">
+    <div class="d-flex justify-content-between align-items-center dashboard-header">
+      <h2><i class="bi bi-person"></i> User Dashboard</h2>
+      <button class="btn btn-outline-secondary btn-sm" id="userLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </div>
+
+    <!-- Info alert showing how to find product ID -->
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      <i class="bi bi-info-circle"></i> <strong>How to track:</strong> Each product card shows its <strong>ID number</strong> in the top-right corner. Use this ID in the "Track" section below.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="userProductGrid"></div>
+
+    <div class="card card-shadow mt-4">
+      <div class="card-body">
+        <h5><i class="bi bi-map"></i> Track your product</h5>
+        <div class="row g-2">
+          <div class="col-md-4">
+            <input type="number" class="form-control" id="trackProductId" placeholder="Enter Product ID (e.g., 1, 2, 3...)">
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-info" id="trackBtn"><i class="bi bi-search"></i> Track</button>
+          </div>
+          <div class="col-md-6">
+            <div id="trackResult" class="track-result-box">
+              <div class="text-muted">Enter a product ID and click Track</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (function() {
+    // ---------- DATA STORE ----------
+    let products = [];
+    let nextId = 1;
+
+    // ---------- FAKE ACCOUNT STORE (in-memory) ----------
+    let accounts = [
+      { name: 'Admin', email: 'admin@shop.com', password: 'admin123', role: 'admin' },
+      { name: 'User', email: 'user@shop.com', password: 'user123', role: 'user' }
+    ];
+
+    // ---------- SAMPLE PRODUCTS ----------
+    const sampleProducts = [
+      { id: nextId++, name: 'Wireless Mouse', price: 29.99, stock: 45, image: 'https://via.placeholder.com/80/007bff/white?text=Mouse', status: 'in stock' },
+      { id: nextId++, name: 'USB-C Hub', price: 49.50, stock: 12, image: 'https://via.placeholder.com/80/6c757d/white?text=Hub', status: 'in stock' },
+      { id: nextId++, name: 'Mechanical Keyboard', price: 89.00, stock: 8, image: 'https://via.placeholder.com/80/28a745/white?text=Keyboard', status: 'in stock' },
+    ];
+    products = sampleProducts;
+
+    // DOM refs
+    const loginPage = document.getElementById('loginPage');
+    const adminDash = document.getElementById('adminDashboard');
+    const userDash = document.getElementById('userDashboard');
+    const adminProductList = document.getElementById('adminProductList');
+    const userProductGrid = document.getElementById('userProductGrid');
+    const trackResult = document.getElementById('trackResult');
+
+    // panels
+    const forgotPanel = document.getElementById('forgotPasswordPanel');
+    const createPanel = document.getElementById('createAccountPanel');
+    const userLoginTab = document.getElementById('userLogin');
+    const adminLoginTab = document.getElementById('adminLogin');
+
+    // ---------- RENDER ----------
+    function renderAdminTable() {
+      let html = '';
+      products.forEach(p => {
+        html += `
+          <tr>
+            <td><img src="${p.image || 'https://via.placeholder.com/60'}" class="product-img-thumb"></td>
+            <td><strong>${p.name}</strong> <span class="badge bg-secondary">ID:${p.id}</span></td>
+            <td>$${p.price.toFixed(2)}</td>
+            <td>${p.stock}</td>
+            <td><span class="badge ${p.status === 'delivered' ? 'bg-success' : p.status === 'shipped' ? 'bg-warning text-dark' : 'bg-info'} badge-status">${p.status || 'in stock'}</span></td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i></button></td>
+          </tr>
+        `;
+      });
+      adminProductList.innerHTML = html || `<tr><td colspan="6" class="text-center text-muted">No products</td></tr>`;
+    }
+
+    function renderUserGrid() {
+      let html = '';
+      if (products.length === 0) html = `<div class="col-12 text-center text-muted">No products available.</div>`;
+      else {
+        products.forEach(p => {
+          html += `
+            <div class="col">
+              <div class="card h-100 card-shadow product-card-wrapper">
+                <!-- Product ID Badge - VISIBLE TO USERS -->
+                <span class="product-id-badge">ID: ${p.id}</span>
+                <img src="${p.image || 'https://via.placeholder.com/200'}" class="card-img-top" style="height:160px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title">${p.name}</h5>
+                  <p class="card-text"><strong>$${p.price.toFixed(2)}</strong> · stock: ${p.stock}</p>
+                  <p class="small text-muted">Status: <span class="badge bg-${p.status === 'delivered' ? 'success' : p.status === 'shipped' ? 'warning' : 'info'}">${p.status || 'in stock'}</span></p>
+                  <button class="btn btn-primary btn-sm w-100" onclick="buyProduct(${p.id})" ${p.stock <= 0 ? 'disabled' : ''}><i class="bi bi-cart-plus"></i> Buy</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      userProductGrid.innerHTML = html;
+    }
+
+    function renderAll() { renderAdminTable(); renderUserGrid(); }
+
+    // ---------- HELPER: Get status icon and color ----------
+    function getStatusDetails(status) {
+      const statusMap = {
+        'in stock': { icon: 'bi-check-circle-fill', color: 'info', label: 'In Stock' },
+        'shipped': { icon: 'bi-truck', color: 'warning', label: 'Shipped' },
+        'delivered': { icon: 'bi-check2-all', color: 'success', label: 'Delivered' },
+        'out of stock': { icon: 'bi-x-circle-fill', color: 'danger', label: 'Out of Stock' }
+      };
+      return statusMap[status] || statusMap['in stock'];
+    }
+
+    // ---------- CRUD / ACTIONS ----------
+    window.deleteProduct = function(id) {
+      if (confirm('Delete product?')) {
+        products = products.filter(p => p.id !== id);
+        renderAll();
+      }
+    };
+
+    window.buyProduct = function(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return alert('Product not found');
+      if (product.stock <= 0) return alert('Out of stock');
+      product.stock -= 1;
+      product.status = product.stock > 0 ? 'in stock' : 'out of stock';
+      renderAll();
+      alert(`You bought "${product.name}". Stock updated.`);
+    };
+
+    document.getElementById('shipProductBtn').addEventListener('click', function() {
+      const id = parseInt(document.getElementById('shipProductId').value);
+      if (!id) return alert('Enter product ID');
+      const product = products.find(p => p.id === id);
+      if (!product) return alert('Product not found');
+      if (product.stock <= 0) return alert('Cannot ship: out of stock');
+      product.status = 'shipped';
+      renderAll();
+      document.getElementById('shipProductId').value = '';
+      alert(`✅ Product ID ${id} marked as SHIPPED.`);
+    });
+
+    document.getElementById('deliverProductBtn').addEventListener('click', function() {
+      const id = parseInt(document.getElementById('deliverProductId').value);
+      if (!id) return alert('Enter product ID');
+      const product = products.find(p => p.id === id);
+      if (!product) return alert('Product not found');
+      if (product.status !== 'shipped') return alert('Product must be shipped first');
+      product.status = 'delivered';
+      renderAll();
+      document.getElementById('deliverProductId').value = '';
+      alert(`✅ Product ID ${id} marked as DELIVERED.`);
+    });
+
+    document.getElementById('trackBtn').addEventListener('click', function() {
+      const id = parseInt(document.getElementById('trackProductId').value);
+      if (!id) { 
+        trackResult.innerHTML = `<div class="text-muted">⚠️ Please enter a product ID</div>`;
+        return; 
+      }
+      const product = products.find(p => p.id === id);
+      if (!product) { 
+        trackResult.innerHTML = `<div class="text-danger">❌ No product with ID ${id}</div>`;
+        return; 
+      }
+
+      const statusDetails = getStatusDetails(product.status);
+      const statusIcon = statusDetails.icon;
+      const statusColor = statusDetails.color;
+      const statusLabel = statusDetails.label;
+
+      // Determine which steps are completed
+      const steps = [
+        { key: 'in stock', label: 'In Stock', icon: 'bi-box-seam' },
+        { key: 'shipped', label: 'Shipped', icon: 'bi-truck' },
+        { key: 'delivered', label: 'Delivered', icon: 'bi-check2-all' }
+      ];
+
+      let stepsHtml = '';
+      let currentStepIndex = steps.findIndex(s => s.key === product.status);
+      if (currentStepIndex === -1) currentStepIndex = 0;
+
+      steps.forEach((step, index) => {
+        let stepClass = 'status-step';
+        if (index < currentStepIndex) stepClass += ' completed';
+        else if (index === currentStepIndex) stepClass += ' active';
+        
+        stepsHtml += `
+          <div class="${stepClass}">
+            <i class="bi ${step.icon}"></i> ${step.label}
+          </div>
+        `;
+        if (index < steps.length - 1) {
+          stepsHtml += `<span class="status-arrow">→</span>`;
+        }
+      });
+
+      trackResult.innerHTML = `
+        <div class="track-status-card">
+          <h6 class="mb-2">
+            <i class="bi bi-box"></i> <strong>${product.name}</strong> 
+            <span class="badge bg-secondary">ID: ${product.id}</span>
+          </h6>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <span class="text-muted">Price:</span> <strong>$${product.price.toFixed(2)}</strong>
+            </div>
+            <div class="col-md-6">
+              <span class="text-muted">Stock:</span> <strong>${product.stock}</strong>
+            </div>
+          </div>
+          <div class="mb-2">
+            <span class="text-muted">Current Status:</span> 
+            <span class="badge bg-${statusColor} badge-status">
+              <i class="bi ${statusIcon}"></i> ${statusLabel}
+            </span>
+          </div>
+          <div class="status-timeline">
+            ${stepsHtml}
+          </div>
+        </div>
+      `;
+    });
+
+    // Add product
+    document.getElementById('addProductForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('prodName').value.trim();
+      const price = parseFloat(document.getElementById('prodPrice').value);
+      const stock = parseInt(document.getElementById('prodStock').value);
+      const image = document.getElementById('prodImage').value.trim() || 'https://via.placeholder.com/80';
+      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill all fields correctly');
+      const newProduct = { id: nextId++, name, price, stock, image, status: stock > 0 ? 'in stock' : 'out of stock' };
+      products.push(newProduct);
+      renderAll();
+      this.reset();
+      document.getElementById('prodImage').value = 'https://via.placeholder.com/80';
+      alert(`✅ Product "${name}" added! (ID: ${newProduct.id})`);
+    });
+
+    // ---------- AUTH: LOGIN ----------
+    function loginUser(email, password, role) {
+      const account = accounts.find(a => a.email === email && a.password === password && a.role === role);
+      if (!account) {
+        alert(`Invalid credentials for ${role}.`);
+        return false;
+      }
+      return true;
+    }
+
+    document.getElementById('userLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('userLoginEmail').value;
+      const pass = document.getElementById('userLoginPassword').value;
+      if (loginUser(email, pass, 'user')) {
+        loginPage.classList.add('hidden');
+        adminDash.classList.add('hidden');
+        userDash.classList.remove('hidden');
+        renderAll();
+      }
+    });
+
+    document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('adminLoginEmail').value;
+      const pass = document.getElementById('adminLoginPassword').value;
+      if (loginUser(email, pass, 'admin')) {
+        loginPage.classList.add('hidden');
+        adminDash.classList.remove('hidden');
+        userDash.classList.add('hidden');
+        renderAll();
+      }
+    });
+
+    // ---------- LOGOUT ----------
+    document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+      adminDash.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      resetLoginPanels();
+    });
+    document.getElementById('userLogoutBtn').addEventListener('click', function() {
+      userDash.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      resetLoginPanels();
+    });
+
+    // ---------- FORGOT PASSWORD ----------
+    document.getElementById('userForgotLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showForgotPanel();
+    });
+    document.getElementById('adminForgotLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showForgotPanel();
+    });
+    function showForgotPanel() {
+      userLoginTab.classList.add('hidden');
+      adminLoginTab.classList.add('hidden');
+      forgotPanel.classList.remove('hidden');
+      createPanel.classList.add('hidden');
+    }
+
+    document.getElementById('backToLoginFromForgot').addEventListener('click', function(e) {
+      e.preventDefault();
+      resetLoginPanels();
+    });
+
+    document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value.trim();
+      const account = accounts.find(a => a.email === email);
+      if (!account) {
+        alert('No account found with this email.');
+      } else {
+        alert(`Password reset link sent to ${email} (demo).`);
+      }
+      document.getElementById('forgotEmail').value = '';
+      resetLoginPanels();
+    });
+
+    // ---------- CREATE ACCOUNT ----------
+    document.getElementById('userCreateLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showCreatePanel();
+    });
+    document.getElementById('adminCreateLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showCreatePanel();
+    });
+    function showCreatePanel() {
+      userLoginTab.classList.add('hidden');
+      adminLoginTab.classList.add('hidden');
+      createPanel.classList.remove('hidden');
+      forgotPanel.classList.add('hidden');
+    }
+
+    document.getElementById('backToLoginFromCreate').addEventListener('click', function(e) {
+      e.preventDefault();
+      resetLoginPanels();
+    });
+
+    document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('createName').value.trim();
+      const email = document.getElementById('createEmail').value.trim();
+      const password = document.getElementById('createPassword').value.trim();
+      const role = document.getElementById('createRole').value;
+      if (!name || !email || !password) return alert('All fields required');
+      if (accounts.find(a => a.email === email)) {
+        alert('Email already registered.');
+        return;
+      }
+      accounts.push({ name, email, password, role });
+      alert(`✅ Account created for ${email} (${role}). You can now login.`);
+      document.getElementById('createName').value = '';
+      document.getElementById('createEmail').value = '';
+      document.getElementById('createPassword').value = '';
+      resetLoginPanels();
+    });
+
+    function resetLoginPanels() {
+      userLoginTab.classList.remove('hidden');
+      adminLoginTab.classList.remove('hidden');
+      forgotPanel.classList.add('hidden');
+      createPanel.classList.add('hidden');
+    }
+
+    // initial render
+    renderAll();
+  })();
+</script>
+</body>
+</html>
